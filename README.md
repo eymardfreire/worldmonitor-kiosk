@@ -96,6 +96,7 @@ https://worldmonitor.app/?lat=20.0000&lon=0.0000&zoom=1.00&view=global&timeRange
 | Issue | What to try |
 |-------|-------------|
 | Black screen | `journalctl -u dietpi-autostart_custom`; ensure Chromium is installed (`which chromium-browser` or `which chromium`). |
+| "Missing X server or $DISPLAY" | Install xinit: `apt-get update && apt-get install -y xinit`, then reboot. |
 | Chromium not found | Install: `dietpi-software install 113` |
 | Freezes (Pi 3B) | Enable swap: `dietpi-config` → Swap file → 1024 MB |
 | Wrong resolution | `dietpi-config` → Display Options, or `/boot/firmware/config.txt` (or `/boot/config.txt`) |

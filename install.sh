@@ -29,6 +29,12 @@ else
   echo "Chromium already installed."
 fi
 
+# 2b. Install xinit so custom script can start X (needed for option 17)
+if ! command -v xinit >/dev/null 2>&1; then
+  echo "Installing xinit for display..."
+  apt-get update -qq && apt-get install -y xinit 2>/dev/null || true
+fi
+
 # 3. Download and install kiosk script
 mkdir -p "$(dirname "$TARGET")"
 echo "Downloading kiosk script..."
