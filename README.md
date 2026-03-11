@@ -15,8 +15,8 @@ No URL or repo name to type. To use a different fork: `... | sudo bash -s YOUR_U
 The script will:
 
 1. Install Chromium if missing
-2. Write the World Monitor URL to `/boot/dietpi.txt` (so Chromium opens it automatically)
-3. Set DietPi autostart to **option 11** (Chromium – dedicated use without desktop). DietPi starts X and Chromium; no custom script needed
+2. Write the World Monitor URL and **1920×1080** resolution to `/boot/dietpi.txt` (kiosk starts fullscreen at 1080p)
+3. Set DietPi autostart to **option 11** (Chromium – dedicated use without desktop)
 
 Then **reboot**: `sudo reboot`. After reboot, World Monitor should appear. On Pi 3B (1 GB RAM), enable swap in `dietpi-config` if needed.
 
@@ -100,6 +100,8 @@ Default URL:
 ```
 https://worldmonitor.app/?lat=20.0000&lon=0.0000&zoom=1.00&view=global&timeRange=7d&layers=conflicts%2Cbases%2Chotspots%2Cnuclear%2Csanctions%2Cweather%2Ceconomic%2Cwaterways%2Cnatural
 ```
+
+**Resolution:** The install script sets **1920×1080** in `/boot/dietpi.txt` (`SOFTWARE_CHROMIUM_RES_X`, `SOFTWARE_CHROMIUM_RES_Y`) so the kiosk starts fullscreen. For another resolution, edit those values and reboot.
 
 ---
 

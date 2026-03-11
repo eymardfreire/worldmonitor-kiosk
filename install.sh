@@ -25,8 +25,8 @@ else
   echo "Chromium already installed."
 fi
 
-# 3. Set World Monitor URL and autologin user in dietpi.txt
-echo "Setting World Monitor URL and autologin in $DIETPI_TXT..."
+# 3. Set World Monitor URL, 1080p fullscreen, and autologin user in dietpi.txt
+echo "Setting World Monitor URL, resolution (1080p), and autologin in $DIETPI_TXT..."
 if [ -f "$DIETPI_TXT" ]; then
   if grep -q '^[[:space:]]*SOFTWARE_CHROMIUM_AUTOSTART_URL=' "$DIETPI_TXT" 2>/dev/null; then
     URL_ESC="${WORLDMONITOR_URL//&/\\&}"
@@ -34,11 +34,19 @@ if [ -f "$DIETPI_TXT" ]; then
   else
     echo "SOFTWARE_CHROMIUM_AUTOSTART_URL=$WORLDMONITOR_URL" >> "$DIETPI_TXT"
   fi
+  # 1080p so Chromium kiosk starts fullscreen (DietPi script uses these for --window-size)
+  for key in SOFTWARE_CHROMIUM_RES_X=1920 SOFTWARE_CHROMIUM_RES_Y=1080; do
+    if grep -q "^[[:space:]]*${key%=*}=" "$DIETPI_TXT" 2>/dev/null; then
+      sed -i "s|^[[:space:]]*${key%=*}=.*|$key|" "$DIETPI_TXT"
+    else
+      echo "$key" >> "$DIETPI_TXT"
+    fi
+  done
   # Ensure autologin user is set (required for option 11 to auto-start)
   if ! grep -q '^[[:space:]]*AUTO_SETUP_AUTOSTART_LOGIN_USER=' "$DIETPI_TXT" 2>/dev/null; then
     echo "AUTO_SETUP_AUTOSTART_LOGIN_USER=root" >> "$DIETPI_TXT"
   fi
-  echo "URL and autologin user set."
+  echo "URL, 1920x1080, and autologin user set."
 else
   echo "Warning: $DIETPI_TXT not found."
 fi
