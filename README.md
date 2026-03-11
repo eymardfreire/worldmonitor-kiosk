@@ -107,6 +107,7 @@ https://worldmonitor.app/?lat=20.0000&lon=0.0000&zoom=1.00&view=global&timeRange
 
 | Issue | What to try |
 |-------|-------------|
+| **Login prompt after reboot (kiosk doesn't start)** | The autostart apply may not have run. Log in, then run **`dietpi-autostart`** → choose **11** (Chromium - Dedicated use without desktop) → confirm the URL when asked (or paste the World Monitor URL) → **reboot**. After that, the kiosk should autostart. |
 | Black screen | `journalctl -u dietpi-autostart_custom`; ensure Chromium is installed (`which chromium-browser` or `which chromium`). |
 | "Missing X server or $DISPLAY" | **Quick fix:** use DietPi's built-in Chromium kiosk instead: `dietpi-autostart` → choose **11** (Chromium - Dedicated use without desktop) → when asked for URL, paste the World Monitor URL (see "Changing the World Monitor URL" below) → reboot. Or install xinit: `apt-get update && apt-get install -y xinit`, then re-run the one-line install and reboot. |
 | Chromium not found | Install: `dietpi-software install 113` |
