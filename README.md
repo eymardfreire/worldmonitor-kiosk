@@ -4,35 +4,47 @@ Boot your Pi straight into [World Monitor](https://worldmonitor.app) in full-scr
 
 ## One-line install (on the Pi)
 
-After you push this repo to GitHub, on your **Raspberry Pi (DietPi)** run (replace `YOUR_USERNAME` with your GitHub username):
+On your **Raspberry Pi (DietPi)** — fresh install or existing — run:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/YOUR_USERNAME/worldmonitor-kiosk/main/install.sh | sudo bash
+curl -sL https://raw.githubusercontent.com/eymardfreire/worldmonitor-kiosk/main/install.sh | sudo bash
 ```
 
-Or with repo as argument (so the script knows where to fetch files from):
-
-```bash
-curl -sL https://raw.githubusercontent.com/YOUR_USERNAME/worldmonitor-kiosk/main/install.sh | sudo bash -s YOUR_USERNAME/worldmonitor-kiosk
-```
+No URL or repo name to type. To use a different fork: `... | sudo bash -s YOUR_USERNAME/worldmonitor-kiosk`
 
 The script will:
 
-1. Install Chromium if missing
+1. Install Chromium and xinit if missing
 2. Download and install the kiosk script
-3. **Remove LXDE** (ID 23) so the Pi doesn’t load a desktop—only the kiosk
-4. Set DietPi autostart to **Custom (foreground, with autologin)** so the kiosk runs after boot
+3. Set DietPi autostart to **Custom (foreground, with autologin)**. Nothing else is removed (safe for clean installs)
 
-Then **enable swap** on Pi 3B (1 GB RAM) and **reboot**:
+Then **reboot**: `sudo reboot`. After reboot, World Monitor should appear. On Pi 3B (1 GB RAM), enable swap in `dietpi-config` if needed.
+
+---
+
+## Not fullscreen? (option 11)
+
+If World Monitor opens in a window with grey borders, F11 often does nothing when Chromium is started by DietPi. To force fullscreen, edit the Chromium autostart script on the Pi:
 
 ```bash
-dietpi-config
-# → Swap file → enable, 1024 MB
+# 1. See how Chromium is started (path may be "installed" or "installations", with or without .sh):
+cat /var/lib/dietpi/dietpi-software/installed/chromium-autostart.sh
+# or: cat /var/lib/dietpi/dietpi-software/installations/chromium-autostart
 
+# 2. Set resolution so the window fills the screen (edit /boot/dietpi.txt and add or change):
+#    SOFTWARE_CHROMIUM_RES_X=1920
+#    SOFTWARE_CHROMIUM_RES_Y=1080
+#    (use your monitor resolution). The script uses these; default 1280x720 causes grey borders.
+
+# 3. Optionally add --start-fullscreen: edit the script and add it to CHROMIUM_OPTS, e.g.:
+sudo nano /var/lib/dietpi/dietpi-software/installed/chromium-autostart.sh
+# or: sudo nano /var/lib/dietpi/dietpi-software/installations/chromium-autostart
+
+# 4. Reboot
 sudo reboot
 ```
 
-After reboot, the Pi should show World Monitor in full screen.
+Ensure the line that launches Chromium includes `--kiosk` and `--start-fullscreen`; add `--window-size=1920,1080` and `--window-position=0,0` if needed for your resolution.
 
 ---
 
@@ -96,7 +108,7 @@ https://worldmonitor.app/?lat=20.0000&lon=0.0000&zoom=1.00&view=global&timeRange
 | Issue | What to try |
 |-------|-------------|
 | Black screen | `journalctl -u dietpi-autostart_custom`; ensure Chromium is installed (`which chromium-browser` or `which chromium`). |
-| "Missing X server or $DISPLAY" | Install xinit: `apt-get update && apt-get install -y xinit`, then reboot. |
+| "Missing X server or $DISPLAY" | **Quick fix:** use DietPi's built-in Chromium kiosk instead: `dietpi-autostart` → choose **11** (Chromium - Dedicated use without desktop) → when asked for URL, paste the World Monitor URL (see "Changing the World Monitor URL" below) → reboot. Or install xinit: `apt-get update && apt-get install -y xinit`, then re-run the one-line install and reboot. |
 | Chromium not found | Install: `dietpi-software install 113` |
 | Freezes (Pi 3B) | Enable swap: `dietpi-config` → Swap file → 1024 MB |
 | Wrong resolution | `dietpi-config` → Display Options, or `/boot/firmware/config.txt` (or `/boot/config.txt`) |

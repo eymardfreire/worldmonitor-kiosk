@@ -1,12 +1,11 @@
 #!/bin/bash
 # World Monitor Kiosk - one-line install for DietPi (Raspberry Pi)
-# Usage (replace YOUR_USERNAME with your GitHub username):
-#   curl -sL https://raw.githubusercontent.com/YOUR_USERNAME/worldmonitor-kiosk/main/install.sh | sudo bash
-# Or with repo as argument:
-#   curl -sL https://raw.githubusercontent.com/YOUR_USERNAME/worldmonitor-kiosk/main/install.sh | sudo bash -s YOUR_USERNAME/worldmonitor-kiosk
+# Usage (from a fresh DietPi, no args needed):
+#   curl -sL https://raw.githubusercontent.com/eymardfreire/worldmonitor-kiosk/main/install.sh | sudo bash
+# Or with a different repo: ... | sudo bash -s USER/repo-name
 
 set -e
-REPO="${1:-YOUR_USERNAME/worldmonitor-kiosk}"
+REPO="${1:-eymardfreire/worldmonitor-kiosk}"
 BRANCH="${2:-main}"
 BASE="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 TARGET="/var/lib/dietpi/dietpi-autostart/custom.sh"
@@ -46,14 +45,9 @@ fi
 chmod +x "$TARGET"
 echo "Installed to $TARGET"
 
-# 4. Remove LXDE to free RAM and keep boot minimal (only kiosk)
-echo "Removing LXDE (ID 23) if installed..."
-dietpi-software uninstall 23 2>/dev/null || true
-echo "Done (X is kept for Chromium)."
-
-# 5. Set autostart to Custom (foreground + autologin)
+# 4. Set autostart to Custom (foreground + autologin)
 # DietPi index 17 = Custom script (foreground, with autologin)
-echo "Setting autostart to Custom kiosk (index 17)..."
+echo "Setting autostart to Custom kiosk..."
 if command -v dietpi-autostart >/dev/null 2>&1; then
   dietpi-autostart 17 2>/dev/null || {
     echo "Could not set autostart automatically. Run: dietpi-autostart"
@@ -64,6 +58,6 @@ else
 fi
 
 echo ""
-echo "=== Done. Enable swap on Pi 3B (1GB RAM) for stability: dietpi-config -> Swap file -> 1024 MB ==="
-echo "Then reboot to start World Monitor kiosk: sudo reboot"
+echo "=== Done. Reboot to start World Monitor kiosk: sudo reboot"
+echo "(On Pi 3B with 1GB RAM, enable swap in dietpi-config for stability.)"
 echo ""
