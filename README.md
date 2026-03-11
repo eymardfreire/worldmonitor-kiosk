@@ -14,9 +14,9 @@ No URL or repo name to type. To use a different fork: `... | sudo bash -s YOUR_U
 
 The script will:
 
-1. Install Chromium and xinit if missing
-2. Download and install the kiosk script
-3. Set DietPi autostart to **Custom (foreground, with autologin)**. Nothing else is removed (safe for clean installs)
+1. Install Chromium if missing
+2. Write the World Monitor URL to `/boot/dietpi.txt` (so Chromium opens it automatically)
+3. Set DietPi autostart to **option 11** (Chromium – dedicated use without desktop). DietPi starts X and Chromium; no custom script needed
 
 Then **reboot**: `sudo reboot`. After reboot, World Monitor should appear. On Pi 3B (1 GB RAM), enable swap in `dietpi-config` if needed.
 

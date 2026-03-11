@@ -1,17 +1,14 @@
 #!/bin/bash
 # World Monitor Kiosk - one-line install for DietPi (Raspberry Pi)
-# Usage (from a fresh DietPi, no args needed):
-#   curl -sL https://raw.githubusercontent.com/eymardfreire/worldmonitor-kiosk/main/install.sh | sudo bash
-# Or with a different repo: ... | sudo bash -s USER/repo-name
+# Uses DietPi option 11 (Chromium kiosk) and sets the World Monitor URL automatically.
+# Usage: curl -sL https://raw.githubusercontent.com/eymardfreire/worldmonitor-kiosk/main/install.sh | sudo bash
 
 set -e
-REPO="${1:-eymardfreire/worldmonitor-kiosk}"
-BRANCH="${2:-main}"
-BASE="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
-TARGET="/var/lib/dietpi/dietpi-autostart/custom.sh"
+DIETPI_TXT="/boot/dietpi.txt"
+# Same URL as in custom.sh (global view, 7d, layers)
+WORLDMONITOR_URL='https://worldmonitor.app/?lat=20.0000&lon=0.0000&zoom=1.00&view=global&timeRange=7d&layers=conflicts%2Cbases%2Chotspots%2Cnuclear%2Csanctions%2Cweather%2Ceconomic%2Cwaterways%2Cnatural'
 
 echo "=== World Monitor Kiosk for DietPi ==="
-echo "Repo: $REPO"
 echo ""
 
 # 1. Ensure we're on DietPi
@@ -28,33 +25,30 @@ else
   echo "Chromium already installed."
 fi
 
-# 2b. Install xinit so custom script can start X (needed for option 17)
-if ! command -v xinit >/dev/null 2>&1; then
-  echo "Installing xinit for display..."
-  apt-get update -qq && apt-get install -y xinit 2>/dev/null || true
+# 3. Set World Monitor URL for Chromium kiosk (option 11 reads this from dietpi.txt)
+echo "Setting World Monitor URL in $DIETPI_TXT..."
+if [ -f "$DIETPI_TXT" ]; then
+  if grep -q '^[[:space:]]*SOFTWARE_CHROMIUM_AUTOSTART_URL=' "$DIETPI_TXT" 2>/dev/null; then
+    # Escape & for sed replacement
+    URL_ESC="${WORLDMONITOR_URL//&/\\&}"
+    sed -i "s|^[[:space:]]*SOFTWARE_CHROMIUM_AUTOSTART_URL=.*|SOFTWARE_CHROMIUM_AUTOSTART_URL=$URL_ESC|" "$DIETPI_TXT"
+  else
+    echo "SOFTWARE_CHROMIUM_AUTOSTART_URL=$WORLDMONITOR_URL" >> "$DIETPI_TXT"
+  fi
+  echo "URL set."
+else
+  echo "Warning: $DIETPI_TXT not found. After install, run dietpi-autostart, choose 11, and paste the URL when asked."
 fi
 
-# 3. Download and install kiosk script
-mkdir -p "$(dirname "$TARGET")"
-echo "Downloading kiosk script..."
-if ! curl -sLf "${BASE}/custom.sh" -o "$TARGET"; then
-  echo "Error: Could not download custom.sh from ${BASE}/custom.sh"
-  echo "Check REPO (e.g. username/worldmonitor-kiosk) and branch (default: main)."
-  exit 1
-fi
-chmod +x "$TARGET"
-echo "Installed to $TARGET"
-
-# 4. Set autostart to Custom (foreground + autologin)
-# DietPi index 17 = Custom script (foreground, with autologin)
-echo "Setting autostart to Custom kiosk..."
+# 4. Set autostart to option 11 (Chromium - dedicated use without desktop)
+echo "Setting autostart to Chromium kiosk (option 11)..."
 if command -v dietpi-autostart >/dev/null 2>&1; then
-  dietpi-autostart 17 2>/dev/null || {
+  dietpi-autostart 11 2>/dev/null || {
     echo "Could not set autostart automatically. Run: dietpi-autostart"
-    echo "  -> Select '17' / 'Custom script (foreground, with autologin)'"
+    echo "  -> Select '11' (Chromium - Dedicated use without desktop)"
   }
 else
-  echo "Run: dietpi-autostart -> Select 'Custom script (foreground, with autologin)'"
+  echo "Run: dietpi-autostart -> Select '11' (Chromium kiosk)"
 fi
 
 echo ""
